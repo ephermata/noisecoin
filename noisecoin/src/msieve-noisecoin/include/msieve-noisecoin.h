@@ -24,14 +24,11 @@ extern "C" {
 #include <util.h>
 #include <mp.h>
 
+
 /* version info */
 
 #define MSIEVE_MAJOR_VERSION 1
 #define MSIEVE_MINOR_VERSION 46
-
-/* The final output from the factorization is a linked
-   list of msieve_factor structures, one for each factor
-   found. */
 
 enum msieve_factor_type {
 	MSIEVE_COMPOSITE,
@@ -43,7 +40,22 @@ typedef struct msieve_factor {
 	enum msieve_factor_type factor_type;
 	char *number;
 	struct msieve_factor *next;
-} msieve_factor;
+} msieve_factor; 
+
+
+typedef struct {
+#if defined(WIN32) || defined(_WIN64)
+	HANDLE file_handle;
+	uint32 read_size;
+	uint32 eof;
+#else
+	FILE *fp;
+#endif 
+
+	char *name;
+	char *buf;
+	uint32 buf_off;
+} savefile_t; 
 
 /* These flags are used to 'communicate' status and
    configuration info back and forth to a factorization
@@ -82,21 +94,7 @@ enum msieve_flags {
 	MSIEVE_FLAG_DEEP_ECM = 0x2000    /* perform nontrivial-size ECM */
 };
 	
-/* structure encapsulating the savefile used in a factorization */
 
-typedef struct {
-
-#if defined(WIN32) || defined(_WIN64)
-	HANDLE file_handle;
-	uint32 read_size;
-	uint32 eof;
-#else
-	FILE *fp;
-#endif
-	char *name;
-	char *buf;
-	uint32 buf_off;
-} savefile_t;
 
 /* One factorization is represented by a msieve_obj
    structure. This contains all the static information
@@ -135,6 +133,23 @@ typedef struct {
 						printing big integers */
 } msieve_obj;
 
+typedef struct {
+
+} msieve_exported_relation_t;
+
+typedef struct {
+} msieve_exported_factor_base_t; 
+
+typedef struct {
+} msieve_exported_polys_t; 
+
+typedef struct {
+	msieve_exported_factor_base_t fb;
+	msieve_exported_polys_t polys; 
+
+} msieve_exported_relation_ctx_t; 
+
+
 msieve_obj * msieve_obj_new(char *input_integer,
 			    uint32 flags,
 			    char *savefile_name,
@@ -155,10 +170,13 @@ msieve_obj * msieve_obj_new(char *input_integer,
 msieve_obj * msieve_obj_free(msieve_obj *obj);
 
 void msieve_run(msieve_obj *obj);
+
+/* Needed: new function to run until a certain number of relations are found */ 
+
+/* Needed: extract relations from msieve object */ 
+
+/* Needed: given a relation, given an msieve object, check if the relation is correct */ 
 				
-#define MSIEVE_DEFAULT_LOGFILE "msieve.log"
-#define MSIEVE_DEFAULT_SAVEFILE "msieve.dat"
-#define MSIEVE_DEFAULT_NFS_FBFILE "msieve.fb"
 
 #ifdef __cplusplus
 }
